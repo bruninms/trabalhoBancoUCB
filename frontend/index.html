@@ -5,14 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Banco Malvader - Login</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="IMG/favicon.ico" type="image/x-icon">
 </head>
 <body>
   <div class="container">
-    <div class="logo">MALVADER</div>
+    <div class="logo">
+      <img src="favicon.png">
+      MALVADER</div>
 
     <div id="login-box">
-      <label for="cpf">CPF:</label>
-      <input type="text" id="cpf" name="cpf" placeholder="Digite seu CPF" required>
+      <label for="cpf">CPF</label>
+      <input type="text" id="cpf" name="cpf" placeholder="000.000.000-00" required>
     
       <label for="senha">Senha</label>
       <input type="password" id="senha" placeholder="Digite sua senha">
@@ -34,10 +37,10 @@
       const cpf = document.getElementById('cpf').value;
       const senha = document.getElementById('senha').value;
   
-      if (cpf === '12312312312' && senha === '123') {
+      if (cpf === '123.123.123-12' && senha === '123') {
         document.getElementById('login-box').style.display = 'none';
         document.getElementById('otp-box').style.display = 'block';
-      } else if (cpf !== '12312312312') {
+      } else if (cpf !== '123.123.123-12') {
         alert('CPF incorreto');
       } else {
         alert('Senha incorreta');

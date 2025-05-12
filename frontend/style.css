@@ -20,12 +20,19 @@ body {
 }
 
 .logo {
-  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   margin-bottom: 20px;
   font-size: 28px;
   font-weight: bold;
-  color: #1a237e;
+  color: #082642;
   letter-spacing: 2px;
+}
+
+.logo img {
+  margin-right: 5px;
+  max-width: 50px;
 }
 
 label {
@@ -36,30 +43,32 @@ label {
 
 input {
   width: 100%;
-  padding: 10px;
+  padding: 17px;
   margin-bottom: 15px;
   border-radius: 6px;
-  border: 1px solid #ccc;
+  background: #f4f4f4;
+  border: 1px solid #f4f4f4;
   font-size: 16px;
 }
 
 .btn {
   width: 100%;
-  padding: 12px;
-  background-color: #ff6f00;
+  padding: 15px;
+  background-color: #ff5500;
   border: none;
   border-radius: 6px;
   font-size: 16px;
   color: #fff;
   cursor: pointer;
   margin-bottom: 10px;
+  margin-top: 10px;
 }
 
 .link {
   font-family: "Merriweather Sans";
   text-align: center;
   font-size: 14px;
-  color: #3949ab;
+  color: #082642;
   cursor: pointer;
 }
 
