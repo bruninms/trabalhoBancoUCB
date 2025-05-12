@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Banco Malvader - Login</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <div class="logo">MALVADER</div>
+
+    <div id="login-box">
+      <label for="cpf">CPF:</label>
+      <input type="text" id="cpf" name="cpf" placeholder="Digite seu CPF" required>
+    
+      <label for="senha">Senha</label>
+      <input type="password" id="senha" placeholder="Digite sua senha">
+    
+      <button class="btn" onclick="verificarSenha()">Entrar</button>
+      <div class="link">Esqueci minha senha</div>
+    </div>
+    
+    <div id="otp-box">
+      <label for="otp">Código OTP</label>
+      <input type="text" id="otp" placeholder="6 dígitos">
+      <button class="btn" onclick="validarOTP()">Confirmar</button>
+    </div>
+    
+  </div>
+
+  <script>
+    function verificarSenha() {
+      const cpf = document.getElementById('cpf').value;
+      const senha = document.getElementById('senha').value;
+  
+      if (cpf === '12312312312' && senha === '123') {
+        document.getElementById('login-box').style.display = 'none';
+        document.getElementById('otp-box').style.display = 'block';
+      } else if (cpf !== '12312312312') {
+        alert('CPF incorreto');
+      } else {
+        alert('Senha incorreta');
+      }
+    }
+  
+    function validarOTP() {
+      const otp = document.getElementById('otp').value;
+      if (otp === '000000') {
+        alert('Login completo!');
+      } else {
+        alert('OTP inválido');
+      }
+    }
+  </script>
+  
+</html>
