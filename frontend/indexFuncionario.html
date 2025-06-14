@@ -14,7 +14,7 @@
         <img src="IMG/favicon.png" alt="logo" />
         <span>MALVADER | FUNCIONÁRIO</span>
       </div>
-      <button class="btn-sair" onclick="window.location.href='login.html'">SAIR</button>
+      <button class="btn-sair" onclick="logoutFuncionario()">SAIR</button>
     </header>
 
     <main class="painel-funcionario">
@@ -45,68 +45,105 @@
         </div>
       </div>
 
-      <!-- Modal 1 -->
       <div class="modal-funcionario" id="modal1" style="display: none;">
         <div class="modal-header">
           <h3>ABERTURA DE CONTA</h3>
           <button class="btn-fechar" onclick="fecharModal('modal1')">X</button>
         </div>
+        <label>Nome Completo</label>
+        <input type="text" id="novo-nome" placeholder="Digite o nome completo" />
+        <label>CPF</label>
+        <input type="text" id="novo-cpf" placeholder="000.000.000-00" />
+        <label>Data de Nascimento</label>
+        <input type="date" id="nova-data-nascimento" />
+        <label>Telefone</label>
+        <input type="text" id="novo-telefone" placeholder="(XX) XXXXX-XXXX" />
+        <label>Senha Provisória</label>
+        <input type="password" id="nova-senha" placeholder="Senha inicial para o novo usuário" />
+
+        <label>CEP</label>
+        <input type="text" id="novo-cep" placeholder="XXXXX-XXX" />
+        <label>Rua/Local</label>
+        <input type="text" id="novo-local" placeholder="Nome da rua" />
+        <label>Número</label>
+        <input type="number" id="novo-numero-casa" placeholder="Número da casa" />
+        <label>Bairro</label>
+        <input type="text" id="novo-bairro" placeholder="Nome do bairro" />
+        <label>Cidade</label>
+        <input type="text" id="novo-cidade" placeholder="Nome da cidade" />
+        <label>Estado (UF)</label>
+        <input type="text" id="novo-estado" maxlength="2" placeholder="Ex: DF" />
+        <label>Complemento (Opcional)</label>
+        <input type="text" id="novo-complemento" placeholder="Apto, Bloco, etc." />
+
+        <label>Agência (ID)</label>
+        <input type="number" id="nova-agencia-id" placeholder="ID da agência" />
         <label>Tipo da Conta</label>
         <select id="tipo-conta">
           <option value="">Selecione</option>
-          <option value="CP">Conta Poupança</option>
-          <option value="CC">Conta Corrente</option>
-          <option value="CI">Conta Investimento</option>
+          <option value="POUPANCA">Conta Poupança</option>
+          <option value="CORRENTE">Conta Corrente</option>
+          <option value="INVESTIMENTO">Conta Investimento</option>
         </select>
         <div id="campos-conta"></div>
-        <button class="btn-concluir">Concluir</button>
+        <button class="btn-concluir" onclick="abrirNovaConta()">Concluir</button>
       </div>
 
-      <!-- Modal 2 -->
       <div class="modal-funcionario" id="modal2" style="display: none;">
         <div class="modal-header">
           <h3>ENCERRAMENTO DE CONTA</h3>
           <button class="btn-fechar" onclick="fecharModal('modal2')">X</button>
         </div>
         <label>Número da Conta</label>
-        <input type="text" placeholder="Digite o número da conta" />
+        <input type="text" id="encerrar-numero-conta" placeholder="Digite o número da conta" />
         <label>Motivo do Encerramento</label>
-        <textarea placeholder="Descreva o motivo"></textarea>
-        <button class="btn-concluir">Concluir</button>
+        <textarea id="encerrar-motivo" placeholder="Descreva o motivo"></textarea>
+        <label>Sua Senha de Admin</label>
+        <input type="password" id="encerrar-senha-admin" placeholder="Digite sua senha de admin" />
+        <label>Seu OTP de Admin</label>
+        <input type="text" id="encerrar-otp-admin" placeholder="Digite seu OTP de admin" />
+        <button class="btn-concluir" onclick="encerrarConta()">Concluir</button>
       </div>
 
-      <!-- Modal 3 -->
       <div class="modal-funcionario" id="modal3" style="display: none;">
         <div class="modal-header">
           <h3>CONSULTA DE DADOS</h3>
           <button class="btn-fechar" onclick="fecharModal('modal3')">X</button>
         </div>
-        <label>Número da Conta</label>
-        <input type="text" placeholder="Digite o número da conta" />
-        <button class="btn-concluir">Consultar</button>
+        <label>Consulta por CPF do Cliente</label>
+        <input type="text" id="consulta-cpf-cliente" placeholder="Digite o CPF do cliente" />
+        <button class="btn-concluir" onclick="consultarCliente()">Consultar Cliente</button>
+        <div id="resultado-consulta-cliente" style="margin-top: 15px; border-top: 1px solid #ccc; padding-top: 10px;"></div>
+
+        <label style="margin-top: 20px;">Consulta de Contas por ID do Cliente</label>
+        <input type="number" id="consulta-id-cliente-contas" placeholder="Digite o ID do cliente" />
+        <button class="btn-concluir" onclick="consultarContasPorCliente()">Consultar Contas</button>
+        <div id="resultado-consulta-contas" style="margin-top: 15px; border-top: 1px solid #ccc; padding-top: 10px;"></div>
       </div>
 
-      <!-- Modal 4 -->
+
       <div class="modal-funcionario" id="modal4" style="display: none;">
         <div class="modal-header">
           <h3>ALTERAÇÃO DE DADOS</h3>
           <button class="btn-fechar" onclick="fecharModal('modal4')">X</button>
         </div>
-        <label>Número da Conta</label>
-        <input type="text" placeholder="Digite o número da conta" />
+        <label>ID do Usuário a Alterar (Cliente ou Funcionário)</label>
+        <input type="number" id="alterar-id-usuario" placeholder="Digite o ID do usuário" />
         <label>Campo a Alterar</label>
-        <select>
-          <option>Endereço</option>
-          <option>Telefone</option>
-          <option>Email</option>
-          <option>Outro</option>
+        <select id="campo-a-alterar">
+          <option value="telefone">Telefone</option>
+          <option value="endereco">Endereço</option>
+          <option value="senha">Senha</option>
         </select>
         <label>Novo Valor</label>
-        <input type="text" placeholder="Digite o novo valor" />
-        <button class="btn-concluir">Concluir</button>
+        <input type="text" id="novo-valor-alteracao" placeholder="Digite o novo valor" />
+        <label>Sua Senha de Admin</label>
+        <input type="password" id="alterar-senha-admin" placeholder="Digite sua senha de admin" />
+        <label>Seu OTP de Admin</label>
+        <input type="text" id="alterar-otp-admin" placeholder="Digite seu OTP de admin" />
+        <button class="btn-concluir" onclick="alterarDados()">Concluir</button>
       </div>
 
-      <!-- Modal 5 -->
       <div class="modal-funcionario" id="modal5" style="display: none;">
         <div class="modal-header">
           <h3>CADASTRO DE FUNCIONÁRIOS</h3>
@@ -123,7 +160,6 @@
         <button class="btn-concluir">Concluir</button>
       </div>
 
-      <!-- Modal 6 -->
       <div class="modal-funcionario" id="modal6" style="display: none;">
         <div class="modal-header">
           <h3>GERAÇÃO DE RELATÓRIOS</h3>
@@ -143,6 +179,340 @@
     </main>
   </div>
 
-  <script src="src/script.js"></script>
+  <script>
+    const API_URL = 'http://localhost:3000/api'; // URL do seu backend
+    let currentEmployeeId = null; // ID do funcionário logado
+    let currentEmployeeCode = null; // Código do funcionário logado (do login)
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // Obter id_usuario e tipo_usuario do sessionStorage
+        const id_usuario = sessionStorage.getItem('id_usuario');
+        const tipo_usuario = sessionStorage.getItem('tipo_usuario');
+        currentEmployeeCode = sessionStorage.getItem('login_identifier'); // Código do funcionário
+
+        if (!id_usuario || tipo_usuario !== 'FUNCIONARIO') {
+            alert('Você não está logado como funcionário. Redirecionando para a tela de login.');
+            window.location.href = 'login.html';
+            return;
+        }
+        currentEmployeeId = id_usuario; // O ID do funcionário para usar em operações
+
+        // Lógica para mostrar/esconder modais e campos de conta
+        const items = document.querySelectorAll(".item-menu");
+        const modais = document.querySelectorAll(".modal-funcionario");
+
+        items.forEach(item => {
+            item.addEventListener("click", () => {
+                const id = item.getAttribute("data-modal");
+                modais.forEach(modal => modal.style.display = "none");
+                const selectedModal = document.getElementById(id);
+                if (selectedModal) selectedModal.style.display = "block";
+            });
+        });
+
+        const tipoConta = document.getElementById("tipo-conta");
+        const camposContainer = document.getElementById("campos-conta");
+
+        if (tipoConta) {
+            tipoConta.addEventListener("change", () => {
+                const tipo = tipoConta.value;
+                camposContainer.innerHTML = "";
+
+                if (tipo === "POUPANCA") { // Alterado para POUPANCA conforme ENUM
+                    camposContainer.innerHTML = `
+                        <label>Taxa de Rendimento Mensal (%)</label>
+                        <input type="number" id="taxa-rendimento-cp" step="0.01" placeholder="Ex: 0.6" />
+                    `;
+                }
+
+                if (tipo === "CORRENTE") { // Alterado para CORRENTE conforme ENUM
+                    camposContainer.innerHTML = `
+                        <label>Limite do Cheque Especial</label>
+                        <input type="number" id="limite-cc" step="0.01" placeholder="Ex: 2000.00" />
+                        <label>Data de Vencimento (Fatura)</label>
+                        <input type="date" id="data-vencimento-cc" />
+                        <label>Tarifa Mensal</label>
+                        <input type="number" id="taxa-manutencao-cc" step="0.01" placeholder="Ex: 25.00" />
+                    `;
+                }
+
+                if (tipo === "INVESTIMENTO") { // Alterado para INVESTIMENTO conforme ENUM
+                    camposContainer.innerHTML = `
+                        <label>Perfil de Risco</label>
+                        <select id="perfil-risco-ci">
+                            <option value="BAIXO">BAIXO</option>
+                            <option value="MEDIO">MEDIO</option>
+                            <option value="ALTO">ALTO</option>
+                        </select>
+                        <label>Valor Mínimo para Investimento</label>
+                        <input type="number" id="valor-minimo-ci" step="0.01" placeholder="Ex: 5000.00" />
+                        <label>Taxa de Rendimento Base (%)</label>
+                        <input type="number" id="taxa-rendimento-base-ci" step="0.01" placeholder="Ex: 1.2" />
+                    `;
+                }
+            });
+        }
+    });
+
+    function fecharModal(id) {
+        document.getElementById(id).style.display = 'none';
+    }
+
+    async function logoutFuncionario() {
+        try {
+            const response = await fetch(`${API_URL}/logout`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ id_usuario: currentEmployeeId })
+            });
+            const data = await response.json();
+            if (response.ok) {
+                sessionStorage.clear(); // Limpa a sessão
+                window.location.href = 'login.html'; // Redireciona para o login
+            } else {
+                alert('Erro ao fazer logout: ' + data.message);
+            }
+        } catch (error) {
+            console.error('Erro de rede ao fazer logout:', error);
+            alert('Erro ao conectar com o servidor para logout.');
+        }
+    }
+
+    // RF2.1 - Função para abrir nova conta 
+    async function abrirNovaConta() {
+        const nome = document.getElementById('novo-nome').value;
+        const cpf = document.getElementById('novo-cpf').value;
+        const data_nascimento = document.getElementById('nova-data-nascimento').value;
+        const telefone = document.getElementById('novo-telefone').value;
+        const senha_clara = document.getElementById('nova-senha').value;
+        const cep = document.getElementById('novo-cep').value;
+        const local = document.getElementById('novo-local').value;
+        const numero_casa = document.getElementById('novo-numero-casa').value;
+        const bairro = document.getElementById('novo-bairro').value;
+        const cidade = document.getElementById('novo-cidade').value;
+        const estado = document.getElementById('novo-estado').value;
+        const complemento = document.getElementById('novo-complemento').value;
+        const id_agencia = document.getElementById('nova-agencia-id').value;
+        const tipo_conta = document.getElementById('tipo-conta').value;
+
+        // Campos específicos da conta
+        let dadosContaEspecifica = {};
+        if (tipo_conta === 'POUPANCA') {
+            dadosContaEspecifica.taxa_rendimento = document.getElementById('taxa-rendimento-cp').value;
+        } else if (tipo_conta === 'CORRENTE') {
+            dadosContaEspecifica.limite = document.getElementById('limite-cc').value;
+            dadosContaEspecifica.data_vencimento = document.getElementById('data-vencimento-cc').value;
+            dadosContaEspecifica.taxa_manutencao = document.getElementById('taxa-manutencao-cc').value;
+        } else if (tipo_conta === 'INVESTIMENTO') {
+            dadosContaEspecifica.perfil_risco = document.getElementById('perfil-risco-ci').value;
+            dadosContaEspecifica.valor_minimo = document.getElementById('valor-minimo-ci').value;
+            dadosContaEspecifica.taxa_rendimento_base = document.getElementById('taxa-rendimento-base-ci').value;
+        }
+
+        // Validação básica
+        if (!nome || !cpf || !data_nascimento || !telefone || !senha_clara || !cep || !local || !numero_casa || !bairro || !cidade || !estado || !id_agencia || !tipo_conta) {
+            alert('Por favor, preencha todos os campos obrigatórios.');
+            return;
+        }
+
+        try {
+            const response = await fetch(`${API_URL}/conta/abrir`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    nome, cpf, data_nascimento, telefone, senha_clara,
+                    tipo_usuario: 'CLIENTE', // Abrindo conta para um novo cliente
+                    cep, local, numero_casa, bairro, cidade, estado, complemento,
+                    id_agencia: parseInt(id_agencia),
+                    tipo_conta,
+                    ...dadosContaEspecifica
+                })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                alert(data.message + (data.numero_conta ? ` Número da conta: ${data.numero_conta}` : ''));
+                fecharModal('modal1');
+                // Limpar formulário (opcional)
+            } else {
+                alert('Erro ao abrir conta: ' + data.message);
+            }
+        } catch (error) {
+            console.error('Erro na requisição de abertura de conta:', error);
+            alert('Erro ao conectar com o servidor para abrir conta.');
+        }
+    }
+
+    // RF2.2 - Função para encerrar conta 
+    async function encerrarConta() {
+        const numero_conta = document.getElementById('encerrar-numero-conta').value;
+        const motivo = document.getElementById('encerrar-motivo').value;
+        const senha_admin = document.getElementById('encerrar-senha-admin').value;
+        const otp_admin = document.getElementById('encerrar-otp-admin').value;
+
+        if (!numero_conta || !motivo || !senha_admin || !otp_admin) {
+            alert('Por favor, preencha todos os campos para encerrar a conta.');
+            return;
+        }
+
+        try {
+            const response = await fetch(`${API_URL}/conta/encerrar`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    numero_conta,
+                    motivo,
+                    id_funcionario_acao: currentEmployeeId, // Usar o ID do funcionário logado
+                    senha_admin,
+                    otp_admin
+                })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                alert(data.message);
+                fecharModal('modal2');
+            } else {
+                alert('Erro ao encerrar conta: ' + data.message);
+            }
+        } catch (error) {
+            console.error('Erro na requisição de encerramento de conta:', error);
+            alert('Erro ao conectar com o servidor para encerrar conta.');
+        }
+    }
+
+    // RF2.3 - Função para consultar cliente por CPF 
+    async function consultarCliente() {
+        const cpf = document.getElementById('consulta-cpf-cliente').value;
+        if (!cpf) {
+            alert('Por favor, digite o CPF do cliente.');
+            return;
+        }
+
+        try {
+            const response = await fetch(`${API_URL}/consulta/cliente/${cpf}`);
+            const data = await response.json();
+            const resultadoDiv = document.getElementById('resultado-consulta-cliente');
+            resultadoDiv.innerHTML = ''; // Limpa resultados anteriores
+
+            if (response.ok) {
+                let html = `<h4>Dados do Cliente:</h4>`;
+                html += `<p><strong>Nome:</strong> ${data.nome}</p>`;
+                html += `<p><strong>CPF:</strong> ${data.cpf}</p>`;
+                html += `<p><strong>Data Nasc.:</strong> ${new Date(data.data_nascimento).toLocaleDateString()}</p>`;
+                html += `<p><strong>Telefone:</strong> ${data.telefone}</p>`;
+                html += `<p><strong>Score Crédito:</strong> ${data.score_credito || 'N/A'}</p>`;
+                resultadoDiv.innerHTML = html;
+            } else {
+                resultadoDiv.innerHTML = `<p style="color: red;">${data.message}</p>`;
+            }
+        } catch (error) {
+            console.error('Erro na consulta de cliente:', error);
+            document.getElementById('resultado-consulta-cliente').innerHTML = '<p style="color: red;">Erro ao conectar com o servidor.</p>';
+        }
+    }
+
+    // RF2.3 - Função para consultar contas por ID do Cliente 
+    async function consultarContasPorCliente() {
+        const id_cliente_contas = document.getElementById('consulta-id-cliente-contas').value;
+        if (!id_cliente_contas) {
+            alert('Por favor, digite o ID do cliente.');
+            return;
+        }
+
+        try {
+            const response = await fetch(`${API_URL}/consulta/contas-cliente/${id_cliente_contas}`);
+            const data = await response.json();
+            const resultadoDiv = document.getElementById('resultado-consulta-contas');
+            resultadoDiv.innerHTML = '';
+
+            if (response.ok) {
+                if (data.length > 0) {
+                    let html = `<h4>Contas do Cliente (ID: ${id_cliente_contas}):</h4>`;
+                    html += `<ul>`;
+                    data.forEach(conta => {
+                        html += `<li>Conta ID: ${conta.id_conta} | Total Contas: ${conta.total_contas} | Saldo Total: R$ ${parseFloat(conta.saldo_total).toFixed(2).replace('.', ',')}</li>`;
+                    });
+                    html += `</ul>`;
+                    resultadoDiv.innerHTML = html;
+                } else {
+                    resultadoDiv.innerHTML = `<p>Nenhuma conta encontrada para o cliente ID ${id_cliente_contas}.</p>`;
+                }
+            } else {
+                resultadoDiv.innerHTML = `<p style="color: red;">${data.message}</p>`;
+            }
+        } catch (error) {
+            console.error('Erro na consulta de contas por cliente:', error);
+            document.getElementById('resultado-consulta-contas').innerHTML = '<p style="color: red;">Erro ao conectar com o servidor.</p>';
+        }
+    }
+
+    // RF2.4 - Função para alterar dados 
+    async function alterarDados() {
+        const id_usuario_alterar = document.getElementById('alterar-id-usuario').value;
+        const campo_a_alterar = document.getElementById('campo-a-alterar').value;
+        const novo_valor = document.getElementById('novo-valor-alteracao').value;
+        const senha_admin = document.getElementById('alterar-senha-admin').value;
+        const otp_admin = document.getElementById('alterar-otp-admin').value;
+
+        if (!id_usuario_alterar || !campo_a_alterar || !novo_valor || !senha_admin || !otp_admin) {
+            alert('Por favor, preencha todos os campos para alteração.');
+            return;
+        }
+
+        let endpoint;
+        let bodyData = {
+            senha_admin,
+            otp_admin,
+            id_funcionario_acao: currentEmployeeId // ID do funcionário que está fazendo a ação
+        };
+
+        if (campo_a_alterar === 'telefone') {
+            endpoint = `${API_URL}/cliente/${id_usuario_alterar}/alterar-telefone`;
+            bodyData.novo_telefone = novo_valor;
+        } else if (campo_a_alterar === 'senha') {
+            alert('Alteração de senha deve ser feita por uma rota específica para garantir a criptografia e validação de força da senha.');
+            return; // Precisa de uma rota /api/usuario/:id/alterar-senha com validação de hash
+            // endpoint = `${API_URL}/usuario/${id_usuario_alterar}/alterar-senha`;
+            // bodyData.nova_senha = novo_valor;
+        } else {
+            alert('Campo a alterar não implementado neste exemplo.');
+            return;
+        }
+
+
+        try {
+            const response = await fetch(endpoint, {
+                method: 'PUT', // Ou POST dependendo do seu backend
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(bodyData)
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                alert(data.message);
+                fecharModal('modal4');
+            } else {
+                alert('Erro ao alterar dados: ' + data.message);
+            }
+        } catch (error) {
+            console.error('Erro na requisição de alteração de dados:', error);
+            alert('Erro ao conectar com o servidor para alterar dados.');
+        }
+    }
+
+
+  </script>
 </body>
 </html>

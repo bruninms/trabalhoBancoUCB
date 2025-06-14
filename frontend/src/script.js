@@ -1,14 +1,60 @@
 // PAGINA INDEX - CLIENTE
 
-document.addEventListener('DOMContentLoaded', () => {
-  // seu código já existente aqui...
+const API_URL = 'http://localhost:3006/api'; // URL do seu backend
+let currentClientId = null; // ID do cliente logado
+let currentClientCPF = null; // CPF do cliente logado
+
+document.addEventListener('DOMContentLoaded', async () => {
+  // Obter id_usuario e tipo_usuario do sessionStorage
+  const id_usuario = sessionStorage.getItem('id_usuario');
+  const tipo_usuario = sessionStorage.getItem('tipo_usuario');
+  currentClientCPF = sessionStorage.getItem('login_identifier'); // O CPF do cliente
+
+  if (!id_usuario || tipo_usuario !== 'CLIENTE') {
+    // Se não houver usuário logado ou não for cliente, redirecionar para o login
+    alert('Você não está logado como cliente. Redirecionando para a tela de login.');
+    window.location.href = 'login.html';
+    return;
+  }
+
+  // Buscar o id_cliente do id_usuario
+  try {
+      const clienteResponse = await fetch(`${API_URL}/consulta/cliente/${currentClientCPF}`);
+      const clienteData = await clienteResponse.json();
+      if (clienteResponse.ok) {
+          currentClientId = clienteData.id_cliente;
+          console.log("ID do Cliente:", currentClientId);
+      } else {
+          alert('Erro ao obter ID do cliente: ' + clienteData.message);
+          window.location.href = 'login.html'; // Redireciona se não conseguir o ID do cliente
+          return;
+      }
+  } catch (error) {
+      console.error('Erro ao buscar ID do cliente:', error);
+      alert('Erro ao conectar com o servidor para obter dados do cliente.');
+      window.location.href = 'login.html';
+      return;
+  }
+
+
+  // --- Código existente com alterações para usar o backend ---
 
   const btnPerfil = document.getElementById('btn-perfil');
   const menuPerfil = document.getElementById('menu-perfil');
   const btnSair = document.getElementById('btn-sair');
+  const selectConta = document.getElementById('select-conta');
+  const valorSaldo = document.getElementById('valor-saldo');
+  const acoes = {
+    'Extrato': 'Veja o histórico das suas movimentações bancárias.',
+    'Depositar': 'Gere boletos ou utilize Pix para adicionar saldo.',
+    'Saque': 'Retire dinheiro em caixas eletrônicos ou lojas parceiras.',
+    'Transferência': 'Transfira valores para outras contas ou bancos.',
+    'Cartões': 'Gerencie seus cartões físicos e virtuais.',
+    'Pagamentos': 'Pague boletos e contas de consumo rapidamente.'
+  };
 
   btnPerfil.addEventListener('click', (e) => {
-    e.stopPropagation(); // evita fechar menu ao clicar no botão
+    e.stopPropagation();
     if (menuPerfil.style.display === 'block') {
       menuPerfil.style.display = 'none';
     } else {
@@ -16,196 +62,148 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Fecha o menu se clicar fora dele
   document.addEventListener('click', () => {
     menuPerfil.style.display = 'none';
   });
 
-  // Evento sair
-  btnSair.addEventListener('click', () => {
-    window.location.href = 'login.html';
+  // Evento sair (logout)
+  btnSair.addEventListener('click', async () => {
+      try {
+          const response = await fetch(`${API_URL}/logout`, {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ id_usuario: id_usuario })
+          });
+          const data = await response.json();
+          if (response.ok) {
+              sessionStorage.clear(); // Limpa a sessão
+              window.location.href = 'login.html'; // Redireciona para o login
+          } else {
+              alert('Erro ao fazer logout: ' + data.message);
+          }
+      } catch (error) {
+          console.error('Erro de rede ao fazer logout:', error);
+          alert('Erro ao conectar com o servidor para logout.');
+      }
   });
+
+
+  // Função para carregar as contas do cliente
+  async function carregarContasDoCliente() {
+      try {
+          // Usar o endpoint que retorna as contas de um cliente (vw_resumo_contas)
+          const response = await fetch(`${API_URL}/consulta/contas-cliente/${currentClientId}`);
+          const contas = await response.json();
+
+          selectConta.innerHTML = ''; // Limpa as opções existentes
+          if (contas && contas.length > 0) {
+              contas.forEach(conta => {
+                  const option = document.createElement('option');
+                  option.value = conta.id_conta; // id_conta ou numero_conta, dependendo de como você quer identificar
+                  option.textContent = `Conta ${conta.tipo_conta} (ID: ${conta.id_conta})`; // ou numero_conta
+                  selectConta.appendChild(option);
+              });
+              // Atualiza o saldo para a primeira conta carregada
+              atualizarSaldo();
+          } else {
+              const option = document.createElement('option');
+              option.value = '';
+              option.textContent = 'Nenhuma conta encontrada';
+              selectConta.appendChild(option);
+              valorSaldo.innerText = 'R$ 0,00';
+          }
+      } catch (error) {
+          console.error('Erro ao carregar contas do cliente:', error);
+          alert('Erro ao carregar suas contas. Tente novamente mais tarde.');
+          valorSaldo.innerText = 'R$ 0,00';
+      }
+  }
+
+  // Função para atualizar o saldo
+  async function atualizarSaldo() {
+    const selectedAccountId = selectConta.value;
+    if (!selectedAccountId) {
+        valorSaldo.innerText = 'R$ 0,00';
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_URL}/conta/${selectedAccountId}/saldo`);
+        const data = await response.json();
+
+        if (response.ok) {
+            valorSaldo.innerText = 'R$ ' + parseFloat(data.saldo).toFixed(2).replace('.', ',');
+            // Você também pode exibir a projeção de rendimentos se quiser
+            // console.log("Projeção de Rendimento:", data.projecao_rendimento);
+        } else {
+            alert('Erro ao buscar saldo: ' + data.message);
+            valorSaldo.innerText = 'R$ 0,00';
+        }
+    } catch (error) {
+        console.error('Erro ao conectar com o servidor para buscar saldo:', error);
+        alert('Erro ao buscar saldo. Verifique sua conexão.');
+        valorSaldo.innerText = 'R$ 0,00';
+    }
+  }
+
+  function abrirModal(titulo) {
+    document.getElementById('modal-acao').style.display = 'block';
+    document.getElementById('titulo-modal').innerText = titulo;
+    document.getElementById('descricao-modal').innerText = acoes[titulo] || 'Informações sobre esta ação não disponíveis.';
+
+    // Aqui você pode adicionar lógica para carregar dados específicos do modal
+    if (titulo === 'Extrato') {
+        const selectedAccountId = selectConta.value;
+        if (selectedAccountId) {
+            carregarExtrato(selectedAccountId);
+        } else {
+            document.getElementById('descricao-modal').innerText = 'Selecione uma conta para ver o extrato.';
+        }
+    }
+    // Outras lógicas para Depositar, Saque, Transferência, etc.
+  }
+
+  async function carregarExtrato(accountId) {
+      try {
+          const response = await fetch(`${API_URL}/conta/${accountId}/extrato?limite=50&periodo=90d`); // Últimas 50 transações dos últimos 90 dias
+          const transacoes = await response.json();
+
+          let extratoHtml = '<h4>Últimas Transações:</h4>';
+          if (transacoes && transacoes.length > 0) {
+              extratoHtml += '<ul>';
+              transacoes.forEach(t => {
+                  extratoHtml += `<li>${new Date(t.data_hora).toLocaleDateString()} - ${t.tipo_transacao}: R$ ${parseFloat(t.valor).toFixed(2).replace('.', ',')} (${t.descricao || 'N/A'})</li>`;
+              });
+              extratoHtml += '</ul>';
+          } else {
+              extratoHtml += '<p>Nenhuma transação recente.</p>';
+          }
+          document.getElementById('descricao-modal').innerHTML = extratoHtml;
+
+      } catch (error) {
+          console.error('Erro ao carregar extrato:', error);
+          document.getElementById('descricao-modal').innerText = 'Erro ao carregar extrato.';
+      }
+  }
+
+
+  function fecharModal() {
+    document.getElementById('modal-acao').style.display = 'none';
+  }
+
+  // Event Listeners
+  selectConta.addEventListener('change', atualizarSaldo);
+
+  document.querySelectorAll('.acao').forEach(botao => {
+    botao.addEventListener('click', () => {
+      abrirModal(botao.getAttribute('data-titulo'));
+    });
+  });
+
+  // Inicializa carregando as contas do cliente
+  await carregarContasDoCliente();
 });
 
-    const saldos = {
-      'corrente': 1540.75,
-      'poupanca': 8750.20,
-      'investimento': 20235.00
-    };
-
-    const acoes = {
-      'Extrato': 'Veja o histórico das suas movimentações bancárias.',
-      'Depositar': 'Gere boletos ou utilize Pix para adicionar saldo.',
-      'Saque': 'Retire dinheiro em caixas eletrônicos ou lojas parceiras.',
-      'Transferência': 'Transfira valores para outras contas ou bancos.',
-      'Cartões': 'Gerencie seus cartões físicos e virtuais.',
-      'Pagamentos': 'Pague boletos e contas de consumo rapidamente.'
-    };
-
-    function atualizarSaldo() {
-      const tipoConta = document.getElementById('select-conta').value;
-      const valorSaldo = saldos[tipoConta];
-      document.getElementById('valor-saldo').innerText = 'R$ ' + valorSaldo.toFixed(2).replace('.', ',');
-    }
-
-    function abrirModal(titulo) {
-      document.getElementById('modal-acao').style.display = 'block';
-      document.getElementById('titulo-modal').innerText = titulo;
-      document.getElementById('descricao-modal').innerText = acoes[titulo] || 'Informações sobre esta ação não disponíveis.';
-    }
-
-    function fecharModal() {
-      document.getElementById('modal-acao').style.display = 'none';
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-      atualizarSaldo();
-
-      document.getElementById('select-conta').addEventListener('change', atualizarSaldo);
-
-      document.querySelectorAll('.acao').forEach(botao => {
-        botao.addEventListener('click', () => {
-          abrirModal(botao.getAttribute('data-titulo'));
-        });
-      });
-    });
-
-    // FIM PAGINA INDEX - CLIENTE
-
-    // INDEX FUNCIONARIO
-
-    function fecharModal(id) {
-      document.getElementById(id).style.display = 'none';
-    }
-
-    window.addEventListener('DOMContentLoaded', () => {
-      const items = document.querySelectorAll(".item-menu");
-      const modais = document.querySelectorAll(".modal-funcionario");
-
-      items.forEach(item => {
-        item.addEventListener("click", () => {
-          const id = item.getAttribute("data-modal");
-          modais.forEach(modal => modal.style.display = "none");
-          const selectedModal = document.getElementById(id);
-          if (selectedModal) selectedModal.style.display = "block";
-        });
-      });
-
-      const tipoConta = document.getElementById("tipo-conta");
-      const camposContainer = document.getElementById("campos-conta");
-
-      if (tipoConta) {
-        tipoConta.addEventListener("change", () => {
-          const tipo = tipoConta.value;
-          camposContainer.innerHTML = "";
-
-          if (tipo === "CP") {
-            camposContainer.innerHTML = `
-              <label>Rendimento Mensal (%)</label>
-              <input type="number" placeholder="Ex: 0.6" />
-
-              <label>Data de Aniversário da Conta</label>
-              <input type="number" placeholder="Dia do mês (Ex: 15)" min="1" max="31" />
-
-              <label>Limite de Saque Diário</label>
-              <input type="number" placeholder="Ex: 1000.00" />
-            `;
-          }
-
-          if (tipo === "CC") {
-            camposContainer.innerHTML = `
-              <label>Limite do Cheque Especial</label>
-              <input type="number" placeholder="Ex: 2000.00" />
-
-              <label>Tarifa Mensal</label>
-              <input type="number" placeholder="Ex: 25.00" />
-
-              <label>Possui Cartão de Crédito?</label>
-              <select>
-                <option>Sim</option>
-                <option>Não</option>
-              </select>
-            `;
-          }
-
-          if (tipo === "CI") {
-            camposContainer.innerHTML = `
-              <label>Tipo de Investimento</label>
-              <select>
-                <option>CDB</option>
-                <option>LCI</option>
-                <option>Tesouro Direto</option>
-                <option>LC</option>
-                <option>LCA</option>
-              </select>
-
-              <label>Valor Inicial Investido</label>
-              <input type="number" placeholder="Ex: 5000.00" />
-
-              <label>Rentabilidade (%)</label>
-              <input type="number" placeholder="Ex: 1.2" />
-
-              <label>Prazo de Vencimento</label>
-              <input type="date" />
-            `;
-          }
-        });
-      }
-    });
-
-    // FIM INDEX FUNCIONARIO
-
-    //LOGIN
-    let tipoUsuario = null; // cliente ou funcionario
-
-    function verificarSenha() {
-      const cpf = document.getElementById('cpf').value;
-      const senha = document.getElementById('senha').value;
-  
-      if (cpf === '123.123.123-12' && senha === '123') {
-        tipoUsuario = 'cliente';
-        document.getElementById('login-box').style.display = 'none';
-        document.getElementById('otp-box').style.display = 'block';
-      } else if (cpf !== '123.123.123-12') {
-        alert('CPF incorreto');
-      } else {
-        alert('Senha incorreta');
-      }
-    }
-
-    function verificarFuncionario() {
-      const codigo = document.getElementById('codigo').value;
-      const senhaFunc = document.getElementById('senha-func').value;
-
-      if (codigo === 'FUNC123' && senhaFunc === 'senha123') {
-        tipoUsuario = 'funcionario';
-        document.getElementById('login-funcionario-box').style.display = 'none';
-        document.getElementById('otp-box').style.display = 'block';
-      } else {
-        alert('Código ou senha de funcionário incorretos.');
-      }
-    }
-
-    function validarOTP() {
-      const otp = document.getElementById('otp').value;
-      if (otp === '000000') {
-        if (tipoUsuario === 'cliente') {
-          window.location.href = 'index.html';
-        } else if (tipoUsuario === 'funcionario') {
-          window.location.href = 'indexFuncionario.html';
-        }
-      } else {
-        alert('OTP inválido');
-      }
-    }
-
-    function mostrarLoginFuncionario() {
-      document.getElementById('login-box').style.display = 'none';
-      document.getElementById('login-funcionario-box').style.display = 'block';
-    }
-
-    function mostrarCliente() {
-      document.getElementById('login-funcionario-box').style.display = 'none';
-      document.getElementById('login-box').style.display = 'block';
-    }
-    // FIM LOGIN
+// FIM PAGINA INDEX - CLIENTE
