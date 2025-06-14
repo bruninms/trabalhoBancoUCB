@@ -46,59 +46,6 @@
     </div>
   </div>
 
-  <script>
-    let tipoUsuario = null; // cliente ou funcionario
-
-    function verificarSenha() {
-      const cpf = document.getElementById('cpf').value;
-      const senha = document.getElementById('senha').value;
-  
-      if (cpf === '123.123.123-12' && senha === '123') {
-        tipoUsuario = 'cliente';
-        document.getElementById('login-box').style.display = 'none';
-        document.getElementById('otp-box').style.display = 'block';
-      } else if (cpf !== '123.123.123-12') {
-        alert('CPF incorreto');
-      } else {
-        alert('Senha incorreta');
-      }
-    }
-
-    function verificarFuncionario() {
-      const codigo = document.getElementById('codigo').value;
-      const senhaFunc = document.getElementById('senha-func').value;
-
-      if (codigo === 'FUNC123' && senhaFunc === 'senha123') {
-        tipoUsuario = 'funcionario';
-        document.getElementById('login-funcionario-box').style.display = 'none';
-        document.getElementById('otp-box').style.display = 'block';
-      } else {
-        alert('Código ou senha de funcionário incorretos.');
-      }
-    }
-
-    function validarOTP() {
-      const otp = document.getElementById('otp').value;
-      if (otp === '000000') {
-        if (tipoUsuario === 'cliente') {
-          window.location.href = 'index.html';
-        } else if (tipoUsuario === 'funcionario') {
-          window.location.href = 'indexFuncionario.html';
-        }
-      } else {
-        alert('OTP inválido');
-      }
-    }
-
-    function mostrarLoginFuncionario() {
-      document.getElementById('login-box').style.display = 'none';
-      document.getElementById('login-funcionario-box').style.display = 'block';
-    }
-
-    function mostrarCliente() {
-      document.getElementById('login-funcionario-box').style.display = 'none';
-      document.getElementById('login-box').style.display = 'block';
-    }
-  </script>
+  <script src="src/script.js"></script>
 </body>
 </html>
