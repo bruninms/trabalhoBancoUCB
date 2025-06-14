@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Malvader Funcionário</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="IMG/favicon.ico" type="image/x-icon">
+</head>
+<body>
+  <div class="page-funcionario">
+    <header class="header-funcionario">
+      <div class="logo-funcionario">
+        <img src="IMG/favicon.png" alt="logo" />
+        <span>MALVADER | FUNCIONÁRIO</span>
+      </div>
+      <button class="btn-sair" onclick="window.location.href='login.html'">SAIR</button>
+    </header>
+
+    <main class="painel-funcionario">
+      <div class="menu-funcionario">
+        <div class="item-menu" data-modal="modal1">
+          <img src="IMG/extrato.png" />
+          <p>Abertura<br>de Conta</p>
+        </div>
+        <div class="item-menu" data-modal="modal2">
+          <img src="https://img.icons8.com/ios-filled/50/ff5500/checkout.png" />
+          <p>Encerramento<br>de Conta</p>
+        </div>
+        <div class="item-menu" data-modal="modal3">
+          <img src="https://img.icons8.com/ios-filled/50/ff5500/document--v1.png" />
+          <p>Consulta<br>de Dados</p>
+        </div>
+        <div class="item-menu" data-modal="modal4">
+          <img src="https://img.icons8.com/ios-filled/50/ff5500/secured-letter--v1.png" />
+          <p>Alteração<br>de Dados</p>
+        </div>
+        <div class="item-menu" data-modal="modal5">
+          <img src="https://img.icons8.com/ios-filled/50/ff5500/add-user-male.png" />
+          <p>Cadastro de<br>Funcionários</p>
+        </div>
+        <div class="item-menu" data-modal="modal6">
+          <img src="https://img.icons8.com/ios-filled/50/ff5500/purchase-order.png" />
+          <p>Geração de<br>Relatórios</p>
+        </div>
+      </div>
+
+      <!-- Modal 1 -->
+      <div class="modal-funcionario" id="modal1" style="display: none;">
+        <div class="modal-header">
+          <h3>ABERTURA DE CONTA</h3>
+          <button class="btn-fechar" onclick="fecharModal('modal1')">X</button>
+        </div>
+        <label>Tipo da Conta</label>
+        <select id="tipo-conta">
+          <option value="">Selecione</option>
+          <option value="CP">Conta Poupança</option>
+          <option value="CC">Conta Corrente</option>
+          <option value="CI">Conta Investimento</option>
+        </select>
+        <div id="campos-conta"></div>
+        <button class="btn-concluir">Concluir</button>
+      </div>
+
+      <!-- Modal 2 -->
+      <div class="modal-funcionario" id="modal2" style="display: none;">
+        <div class="modal-header">
+          <h3>ENCERRAMENTO DE CONTA</h3>
+          <button class="btn-fechar" onclick="fecharModal('modal2')">X</button>
+        </div>
+        <label>Número da Conta</label>
+        <input type="text" placeholder="Digite o número da conta" />
+        <label>Motivo do Encerramento</label>
+        <textarea placeholder="Descreva o motivo"></textarea>
+        <button class="btn-concluir">Concluir</button>
+      </div>
+
+      <!-- Modal 3 -->
+      <div class="modal-funcionario" id="modal3" style="display: none;">
+        <div class="modal-header">
+          <h3>CONSULTA DE DADOS</h3>
+          <button class="btn-fechar" onclick="fecharModal('modal3')">X</button>
+        </div>
+        <label>Número da Conta</label>
+        <input type="text" placeholder="Digite o número da conta" />
+        <button class="btn-concluir">Consultar</button>
+      </div>
+
+      <!-- Modal 4 -->
+      <div class="modal-funcionario" id="modal4" style="display: none;">
+        <div class="modal-header">
+          <h3>ALTERAÇÃO DE DADOS</h3>
+          <button class="btn-fechar" onclick="fecharModal('modal4')">X</button>
+        </div>
+        <label>Número da Conta</label>
+        <input type="text" placeholder="Digite o número da conta" />
+        <label>Campo a Alterar</label>
+        <select>
+          <option>Endereço</option>
+          <option>Telefone</option>
+          <option>Email</option>
+          <option>Outro</option>
+        </select>
+        <label>Novo Valor</label>
+        <input type="text" placeholder="Digite o novo valor" />
+        <button class="btn-concluir">Concluir</button>
+      </div>
+
+      <!-- Modal 5 -->
+      <div class="modal-funcionario" id="modal5" style="display: none;">
+        <div class="modal-header">
+          <h3>CADASTRO DE FUNCIONÁRIOS</h3>
+          <button class="btn-fechar" onclick="fecharModal('modal5')">X</button>
+        </div>
+        <label>Nome Completo</label>
+        <input type="text" placeholder="Digite o nome" />
+        <label>CPF</label>
+        <input type="text" placeholder="Digite o CPF" />
+        <label>Data de Admissão</label>
+        <input type="date" />
+        <label>Cargo</label>
+        <input type="text" placeholder="Digite o cargo" />
+        <button class="btn-concluir">Concluir</button>
+      </div>
+
+      <!-- Modal 6 -->
+      <div class="modal-funcionario" id="modal6" style="display: none;">
+        <div class="modal-header">
+          <h3>GERAÇÃO DE RELATÓRIOS</h3>
+          <button class="btn-fechar" onclick="fecharModal('modal6')">X</button>
+        </div>
+        <label>Tipo de Relatório</label>
+        <select>
+          <option>Contas Abertas</option>
+          <option>Contas Encerradas</option>
+          <option>Movimentações Financeiras</option>
+          <option>Funcionários</option>
+        </select>
+        <label>Período</label>
+        <input type="month" />
+        <button class="btn-concluir">Gerar Relatório</button>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    function fecharModal(id) {
+      document.getElementById(id).style.display = 'none';
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const items = document.querySelectorAll(".item-menu");
+      const modais = document.querySelectorAll(".modal-funcionario");
+
+      items.forEach(item => {
+        item.addEventListener("click", () => {
+          const id = item.getAttribute("data-modal");
+          modais.forEach(modal => modal.style.display = "none");
+          const selectedModal = document.getElementById(id);
+          if (selectedModal) selectedModal.style.display = "block";
+        });
+      });
+
+      const tipoConta = document.getElementById("tipo-conta");
+      const camposContainer = document.getElementById("campos-conta");
+
+      if (tipoConta) {
+        tipoConta.addEventListener("change", () => {
+          const tipo = tipoConta.value;
+          camposContainer.innerHTML = "";
+
+          if (tipo === "CP") {
+            camposContainer.innerHTML = `
+              <label>Rendimento Mensal (%)</label>
+              <input type="number" placeholder="Ex: 0.6" />
+
+              <label>Data de Aniversário da Conta</label>
+              <input type="number" placeholder="Dia do mês (Ex: 15)" min="1" max="31" />
+
+              <label>Limite de Saque Diário</label>
+              <input type="number" placeholder="Ex: 1000.00" />
+            `;
+          }
+
+          if (tipo === "CC") {
+            camposContainer.innerHTML = `
+              <label>Limite do Cheque Especial</label>
+              <input type="number" placeholder="Ex: 2000.00" />
+
+              <label>Tarifa Mensal</label>
+              <input type="number" placeholder="Ex: 25.00" />
+
+              <label>Possui Cartão de Crédito?</label>
+              <select>
+                <option>Sim</option>
+                <option>Não</option>
+              </select>
+            `;
+          }
+
+          if (tipo === "CI") {
+            camposContainer.innerHTML = `
+              <label>Tipo de Investimento</label>
+              <select>
+                <option>CDB</option>
+                <option>LCI</option>
+                <option>Tesouro Direto</option>
+                <option>LC</option>
+                <option>LCA</option>
+              </select>
+
+              <label>Valor Inicial Investido</label>
+              <input type="number" placeholder="Ex: 5000.00" />
+
+              <label>Rentabilidade (%)</label>
+              <input type="number" placeholder="Ex: 1.2" />
+
+              <label>Prazo de Vencimento</label>
+              <input type="date" />
+            `;
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Banco Malvader - Login</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="IMG/favicon.ico" type="image/x-icon">
+</head>
+<body>
+  <div class="container">
+    <div class="logo">
+      <img src="IMG/favicon.png">
+      MALVADER
+    </div>
+
+    <!-- Login de cliente -->
+    <div id="login-box">
+      <label for="cpf">CPF</label>
+      <input type="text" id="cpf" name="cpf" placeholder="000.000.000-00" required>
+    
+      <label for="senha">Senha</label>
+      <input type="password" id="senha" placeholder="Digite sua senha">
+    
+      <button class="btn" onclick="verificarSenha()">Entrar</button>
+      <div class="link" onclick="mostrarLoginFuncionario()">Entrar como funcionário</div>
+    </div>
+    
+    <!-- Login de funcionário -->
+    <div id="login-funcionario-box" style="display: none;">
+      <label for="codigo">Código do trabalhador</label>
+      <input type="text" id="codigo" placeholder="Digite o código">
+    
+      <label for="senha-func">Senha</label>
+      <input type="password" id="senha-func" placeholder="Digite sua senha">
+    
+      <button class="btn" onclick="verificarFuncionario()">Entrar</button>
+      <div class="link" onclick="mostrarCliente()">Entrar como cliente</div>
+    </div>
+
+    <!-- Verificação de OTP -->
+    <div id="otp-box" style="display: none;">
+      <label for="otp">Código OTP</label>
+      <input type="text" id="otp" placeholder="6 dígitos">
+      <button class="btn" onclick="validarOTP()">Confirmar</button>
+    </div>
+  </div>
+
+  <script>
+    let tipoUsuario = null; // cliente ou funcionario
+
+    function verificarSenha() {
+      const cpf = document.getElementById('cpf').value;
+      const senha = document.getElementById('senha').value;
+  
+      if (cpf === '123.123.123-12' && senha === '123') {
+        tipoUsuario = 'cliente';
+        document.getElementById('login-box').style.display = 'none';
+        document.getElementById('otp-box').style.display = 'block';
+      } else if (cpf !== '123.123.123-12') {
+        alert('CPF incorreto');
+      } else {
+        alert('Senha incorreta');
+      }
+    }
+
+    function verificarFuncionario() {
+      const codigo = document.getElementById('codigo').value;
+      const senhaFunc = document.getElementById('senha-func').value;
+
+      if (codigo === 'FUNC123' && senhaFunc === 'senha123') {
+        tipoUsuario = 'funcionario';
+        document.getElementById('login-funcionario-box').style.display = 'none';
+        document.getElementById('otp-box').style.display = 'block';
+      } else {
+        alert('Código ou senha de funcionário incorretos.');
+      }
+    }
+
+    function validarOTP() {
+      const otp = document.getElementById('otp').value;
+      if (otp === '000000') {
+        if (tipoUsuario === 'cliente') {
+          window.location.href = 'index.html';
+        } else if (tipoUsuario === 'funcionario') {
+          window.location.href = 'indexFuncionario.html';
+        }
+      } else {
+        alert('OTP inválido');
+      }
+    }
+
+    function mostrarLoginFuncionario() {
+      document.getElementById('login-box').style.display = 'none';
+      document.getElementById('login-funcionario-box').style.display = 'block';
+    }
+
+    function mostrarCliente() {
+      document.getElementById('login-funcionario-box').style.display = 'none';
+      document.getElementById('login-box').style.display = 'block';
+    }
+  </script>
+</body>
+</html>

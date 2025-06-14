@@ -1,60 +1,67 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Banco Malvader - Login</title>
-  <link rel="stylesheet" href="style.css">
-  <link rel="icon" href="IMG/favicon.ico" type="image/x-icon">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Área do Cliente - Malvader</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="container">
-    <div class="logo">
-      <img src="favicon.png">
-      MALVADER</div>
+  <div class="page-cliente">
+    <!-- Cabeçalho fixo -->
+    <div class="header-cliente">
+      <div class="logo-cliente">
+        <img src="IMG/favicon.png" alt="Ícone Logo">
+        <span>MALVADER</span>
+      </div>
+      <div class="perfil-container" style="position: relative;">
+        <button class="btn-perfil" id="btn-perfil">
+          <img src="IMG/perfil.png" alt="Perfil">
+        </button>
+        <div class="menu-perfil" id="menu-perfil" style="display: none;">
+          <button id="btn-sair" class="btn-sair-perfil">Sair</button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Conteúdo da página -->
+    <div class="painel-cliente">
+      <!-- Cartão do saldo -->
+      <div class="cartao-saldo">
+        <div class="tipo-conta-box">
+          <img src="IMG/favicon.png" alt="Conta" />
+          <select id="select-conta" class="select-tipo-conta">
+            <option value="corrente">Conta Corrente</option>
+            <option value="poupanca">Conta Poupança</option>
+            <option value="investimento">Conta Investimento</option>
+          </select>
+        </div>
+        <div class="valor-saldo" id="valor-saldo">R$ 0,00</div>
+      </div>
 
-    <div id="login-box">
-      <label for="cpf">CPF</label>
-      <input type="text" id="cpf" name="cpf" placeholder="000.000.000-00" required>
-    
-      <label for="senha">Senha</label>
-      <input type="password" id="senha" placeholder="Digite sua senha">
-    
-      <button class="btn" onclick="verificarSenha()">Entrar</button>
-      <div class="link">Esqueci minha senha</div>
+      <!-- Menu de ações com rolagem -->
+      <div class="acoes-wrapper">
+        <div class="acoes-cliente">
+          <div class="acao" data-titulo="Extrato"><img src="IMG/extrato.png"><p>Extrato</p></div>
+          <div class="acao" data-titulo="Depositar"><img src="IMG/deposito.png"><p>Depositar</p></div>
+          <div class="acao" data-titulo="Saque"><img src="IMG/saque.png"><p>Saque</p></div>
+          <div class="acao" data-titulo="Transferência"><img src="IMG/transferencia.png"><p>Transferência</p></div>
+          <div class="acao" data-titulo="Cartões"><img src="IMG/icone-cartao.png"><p>Cartões</p></div>
+          <div class="acao" data-titulo="Pagamentos"><img src="IMG/icone-pagamentos.png"><p>Pagamentos</p></div>
+        </div>
+      </div>
     </div>
-    
-    <div id="otp-box">
-      <label for="otp">Código OTP</label>
-      <input type="text" id="otp" placeholder="6 dígitos">
-      <button class="btn" onclick="validarOTP()">Confirmar</button>
+
+    <!-- Modal inferior -->
+    <div id="modal-acao" class="modal-acao" style="display: none;">
+      <div class="modal-conteudo">
+        <button class="fechar-modal" onclick="fecharModal()">×</button>
+        <h3 id="titulo-modal">Ação</h3>
+        <p id="descricao-modal">Descrição da ação selecionada aparecerá aqui.</p>
+      </div>
     </div>
-    
   </div>
 
-  <script>
-    function verificarSenha() {
-      const cpf = document.getElementById('cpf').value;
-      const senha = document.getElementById('senha').value;
-  
-      if (cpf === '123.123.123-12' && senha === '123') {
-        document.getElementById('login-box').style.display = 'none';
-        document.getElementById('otp-box').style.display = 'block';
-      } else if (cpf !== '123.123.123-12') {
-        alert('CPF incorreto');
-      } else {
-        alert('Senha incorreta');
-      }
-    }
-  
-    function validarOTP() {
-      const otp = document.getElementById('otp').value;
-      if (otp === '000000') {
-        alert('Login completo!');
-      } else {
-        alert('OTP inválido');
-      }
-    }
-  </script>
-  
+  <script src="src/script.js"></script>
+</body>
 </html>
