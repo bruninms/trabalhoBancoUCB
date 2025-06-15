@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           currentClientId = clienteData.id_cliente;
           console.log("ID do Cliente:", currentClientId);
       } else {
-          alert('Erro ao obter ID do cliente: ' + clienteData.message);
+          alert('Erro ao obter ID do cliente: ' + (clienteData.message || 'Desconhecido'));
           window.location.href = 'login.html'; // Redireciona se não conseguir o ID do cliente
           return;
       }
@@ -81,7 +81,7 @@ document.addEventListener('DOMContentLoaded', async () => {
               sessionStorage.clear(); // Limpa a sessão
               window.location.href = 'login.html'; // Redireciona para o login
           } else {
-              alert('Erro ao fazer logout: ' + data.message);
+              alert('Erro ao fazer logout: ' + (data.message || 'Desconhecido'));
           }
       } catch (error) {
           console.error('Erro de rede ao fazer logout:', error);
@@ -93,8 +93,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Função para carregar as contas do cliente
   async function carregarContasDoCliente() {
       try {
-          // Usar o endpoint que retorna as contas de um cliente (vw_resumo_contas)
-          const response = await fetch(`${API_URL}/consulta/contas-cliente/${currentClientId}`);
+          // *** ALTERADO: Usar o endpoint correto que espera id_usuario ***
+          const response = await fetch(`${API_URL}/cliente/${id_usuario}/contas`);
           const contas = await response.json();
 
           selectConta.innerHTML = ''; // Limpa as opções existentes
@@ -102,7 +102,7 @@ document.addEventListener('DOMContentLoaded', async () => {
               contas.forEach(conta => {
                   const option = document.createElement('option');
                   option.value = conta.id_conta; // id_conta ou numero_conta, dependendo de como você quer identificar
-                  option.textContent = `Conta ${conta.tipo_conta} (ID: ${conta.id_conta})`; // ou numero_conta
+                  option.textContent = `Conta ${conta.tipo_conta}`;
                   selectConta.appendChild(option);
               });
               // Atualiza o saldo para a primeira conta carregada
@@ -116,7 +116,8 @@ document.addEventListener('DOMContentLoaded', async () => {
           }
       } catch (error) {
           console.error('Erro ao carregar contas do cliente:', error);
-          alert('Erro ao carregar suas contas. Tente novamente mais tarde.');
+          // A mensagem de erro detalhada do backend deve aparecer aqui se o frontend mostrar o error.message
+          alert('Erro ao carregar suas contas: ' + (error.message || 'Verifique o console do servidor para mais detalhes.'));
           valorSaldo.innerText = 'R$ 0,00';
       }
   }
@@ -138,12 +139,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             // Você também pode exibir a projeção de rendimentos se quiser
             // console.log("Projeção de Rendimento:", data.projecao_rendimento);
         } else {
-            alert('Erro ao buscar saldo: ' + data.message);
+            alert('Erro ao buscar saldo: ' + (data.message || 'Desconhecido')); // Adicionado fallback para message
             valorSaldo.innerText = 'R$ 0,00';
         }
     } catch (error) {
         console.error('Erro ao conectar com o servidor para buscar saldo:', error);
-        alert('Erro ao buscar saldo. Verifique sua conexão.');
+        alert('Erro ao buscar saldo. Verifique sua conexão ou o console do servidor.');
         valorSaldo.innerText = 'R$ 0,00';
     }
   }
@@ -184,7 +185,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       } catch (error) {
           console.error('Erro ao carregar extrato:', error);
-          document.getElementById('descricao-modal').innerText = 'Erro ao carregar extrato.';
+          document.getElementById('descricao-modal').innerText = 'Erro ao carregar extrato: ' + (error.message || 'Verifique sua conexão.');
       }
   }
 

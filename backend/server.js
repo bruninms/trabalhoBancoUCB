@@ -136,7 +136,20 @@ app.post('/api/conta/abrir', (req, res) => {
         id_agencia, tipo_conta, taxa_rendimento, limite, data_vencimento,
         taxa_manutencao, perfil_risco, valor_minimo, taxa_rendimento_base
     } = req.body;
-
+// ADICIONAR/RE-ADICIONAR ESTE BLOCO NO SEU backend/server.js
+// RF2.3 - Consulta de Dados (Contas por Cliente por ID_CLIENTE para uso por funcionário)
+// Esta rota usa a vw_resumo_contas para facilitar a consulta pelo id_cliente.
+app.get('/api/consulta/contas-cliente/:id_cliente', (req, res) => {
+    const { id_cliente } = req.params;
+    db.query(`SELECT * FROM vw_resumo_contas WHERE id_cliente = ?`, [id_cliente], (err, results) => {
+        if (err) {
+            console.error('Erro ao consultar resumo de contas por id_cliente (func):', err);
+            logAuditoria(null, 'CONSULTA_CONTAS_FALHA_FUNC', `Erro de BD ao consultar contas para cliente ${id_cliente} (func): ${err.message}`);
+            return res.status(500).json({ message: 'Erro interno do servidor ao consultar contas por ID de cliente.' });
+        }
+        res.status(200).json(results);
+    });
+});
     // Validação básica
     if (!cpf || !senha_clara || !tipo_usuario || !id_agencia || !tipo_conta) {
         return res.status(400).json({ message: 'Campos obrigatórios faltando.' });
@@ -207,19 +220,62 @@ app.get('/api/consulta/cliente/:cpf', (req, res) => {
     });
 });
 
-// RF2.3 - Consulta de Dados (Exemplo para Contas por Cliente) 
-app.get('/api/consulta/contas-cliente/:id_cliente', (req, res) => {
-    const { id_cliente } = req.params;
+// RF2.3 - Consulta de Dados (Contas por Cliente por id_usuario) - Rota Atualizada
+app.get('/api/cliente/:id_usuario/contas', (req, res) => {
+    const { id_usuario } = req.params;
 
-    db.query(`SELECT * FROM vw_resumo_contas WHERE id_cliente = ?`, [id_cliente], (err, results) => {
+    // Primeiro, verifique se o id_usuario pertence a um CLIENTE e obtenha o id_cliente
+    db.query(`
+        SELECT c.id_cliente
+        FROM usuario u
+        JOIN cliente c ON u.id_usuario = c.id_usuario
+        WHERE u.id_usuario = ? AND u.tipo_usuario = 'CLIENTE'
+    `, [id_usuario], (err, clientResults) => {
         if (err) {
-            console.error('Erro ao consultar resumo de contas:', err);
-            logAuditoria(null, 'CONSULTA_CONTAS_FALHA', `Erro ao consultar contas para cliente ${id_cliente}: ${err.message}`);
+            console.error('Erro ao verificar cliente para contas:', err);
+            logAuditoria(id_usuario, 'CONSULTA_CONTAS_FALHA', `Erro de BD ao verificar cliente ${id_usuario}: ${err.message}`);
             return res.status(500).json({ message: 'Erro interno do servidor.' });
         }
-        res.status(200).json(results);
+
+        if (clientResults.length === 0) {
+            logAuditoria(id_usuario, 'CONSULTA_CONTAS_FALHA', `Cliente não encontrado ou ID incorreto: ${id_usuario}`);
+            return res.status(404).json({ message: 'Cliente não encontrado ou ID incorreto.' });
+        }
+
+        const id_cliente = clientResults[0].id_cliente;
+
+        // Agora, consulte as contas usando o id_cliente obtido
+        db.query(`
+            SELECT
+                c.id_conta,
+                c.numero_conta,
+                c.saldo,
+                c.tipo_conta,
+                c.status,
+                cp.taxa_rendimento AS poupanca_taxa_rendimento,
+                cc.limite AS corrente_limite,
+                cc.data_vencimento AS corrente_data_vencimento,
+                cc.taxa_manutencao AS corrente_taxa_manutencao,
+                ci.perfil_risco AS investimento_perfil_risco,
+                ci.valor_minimo AS investimento_valor_minimo,
+                ci.taxa_rendimento_base AS investimento_taxa_rendimento_base
+            FROM conta c
+            LEFT JOIN conta_poupanca cp ON c.id_conta = cp.id_conta
+            LEFT JOIN conta_corrente cc ON c.id_conta = cc.id_conta
+            LEFT JOIN conta_investimento ci ON c.id_conta = ci.id_conta
+            WHERE c.id_cliente = ?
+        `, [id_cliente], (err, results) => {
+            if (err) {
+                console.error('Erro ao consultar contas do cliente:', err);
+                logAuditoria(id_usuario, 'CONSULTA_CONTAS_FALHA', `Erro de BD ao consultar contas para cliente ${id_cliente}: ${err.message}`);
+                return res.status(500).json({ message: 'Erro interno do servidor.' });
+            }
+            logAuditoria(id_usuario, 'CONSULTA_CONTAS_SUCESSO', `Contas do cliente ${id_cliente} consultadas.`);
+            res.status(200).json(results);
+        });
     });
 });
+
 
 // RF2.4 - Alteração de Dados (Exemplo: Alterar telefone do cliente) 
 app.put('/api/cliente/:id_usuario/alterar-telefone', (req, res) => {
