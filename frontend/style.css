@@ -252,7 +252,7 @@ body.no-scroll {
 /* ====== PÁGINA INICIAL CLIENTE MALVADER ====== */
 .page-cliente {
   width: 100%;
-  padding: 20px;
+  padding: 0 20px; /* REMOVIDO PADDING-TOP/BOTTOM, ajustado para lateral */
   font-family: 'Roboto', "Merriweather Sans";
 }
 
@@ -324,27 +324,21 @@ body.no-scroll {
 }
 
 
-.painel-cliente {
-  margin-top: 80px; /* Ajuste o margin-top para dar espaço ao header fixo */
-  padding-top: 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 20px;
-  max-width: 900px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
+/* NOVO: Estilo para o cartão de saldo (agora fora do painel-cliente) */
 .cartao-saldo {
-  background-color: #0077d7;
-  color: white;
+  background-color: #ffffff; /* Fundo azul do cartão */
+  color: rgb(0, 0, 0);
   padding: 25px;
   border-radius: 15px;
   width: 100%;
-  max-width: 400px;
+  max-width: 400px; /* Largura máxima para o cartão */
   text-align: center;
   box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  margin-top: 65px; /* AJUSTADO: Menor espaço para o header fixo, mais justo */
+  margin-left: auto; /* Centraliza o cartão */
+  margin-right: auto; /* Centraliza o cartão */
+  box-sizing: border-box; /* Inclui padding na largura total */
+  margin-bottom: 20px; /* Espaço entre o saldo e as ações */
 }
 
 .tipo-conta-box {
@@ -360,9 +354,9 @@ body.no-scroll {
 }
 
 .select-tipo-conta {
-  background-color: rgba(255, 255, 255, 0.2);
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.5);
+  background-color: #ffffff;
+  color: rgb(0, 0, 0);
+  border: 1px solid rgba(0, 0, 0, 0.5);
   padding: 8px 15px;
   border-radius: 5px;
   font-size: 16px;
@@ -374,30 +368,46 @@ body.no-scroll {
   font-weight: bold;
 }
 
+.painel-cliente {
+  margin-top: 0; /* Removido margin-top, pois o cartao-saldo já adiciona espaçamento */
+  padding-top: 0; /* Removido padding-top */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Ações com scroll horizontal */
 .acoes-wrapper {
   width: 100%;
-  max-width: 600px; /* Largura máxima para o wrapper de ações */
-  overflow-x: auto; /* Adiciona rolagem horizontal se necessário */
-  -webkit-overflow-scrolling: touch; /* Melhora a rolagem em dispositivos móveis */
-  white-space: nowrap; /* Impede que os itens quebrem linha */
-  padding-bottom: 10px; /* Evita que o scrollbar corte o conteúdo */
+  max-width: 600px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 10px;
+  /* NOVO: Centraliza o conteúdo rolável quando ele é menor que o wrapper */
+  text-align: center; 
 }
 
 .acoes-cliente {
-  display: inline-flex; /* Permite rolagem horizontal */
+  display: inline-flex; /* ALTERADO: de flex para inline-flex para text-align: center funcionar */
   gap: 20px;
   padding: 10px;
-  justify-content: center; /* Centraliza os itens no wrapper */
-  width: 100%; /* Garante que o flex container ocupe a largura */
+  /* justify-content: center; REMOVIDO: text-align: center no pai já cuida disso */
+  white-space: nowrap; /* MANTIDO: Impede que os itens quebrem linha */
+  flex-shrink: 0; /* IMPEDE que os itens encolham no IE/Edge */
 }
 
 .acao {
   text-align: center;
   cursor: pointer;
-  min-width: 80px; /* Largura mínima para cada ação */
+  min-width: 80px;
   padding: 10px;
   border-radius: 8px;
   transition: background-color 0.3s ease;
+  flex-shrink: 0;
 }
 
 .acao:hover {
@@ -416,8 +426,9 @@ body.no-scroll {
   font-weight: bold;
 }
 
-/* Modal Overlay e Conteúdo - Compartilhados com funcionário, talvez em um style_common.css */
-.modal-overlay {
+/* Modal Overlay e Conteúdo - Adaptado para index.html */
+/* O #modal-acao agora atua como o overlay */
+.modal-acao { /* ID do modal é 'modal-acao' */
     position: fixed;
     top: 0;
     left: 0;
@@ -428,19 +439,20 @@ body.no-scroll {
     justify-content: center;
     align-items: center;
     z-index: 1000;
-    overflow-y: auto;
+    overflow-y: auto; /* Permite rolagem do overlay se o modal for muito grande */
     padding: 20px;
     box-sizing: border-box;
 }
 
-.modal-conteudo { /* Antigo .modal-funcionario */
+.modal-conteudo {
   background-color: #ffffff;
-  border: 3px solid #0077d7;
-  padding: 20px;
+  border: 3px solid #f2f2f2;
+  /* AJUSTADO: Aumenta o padding-top para garantir espaço para o botão de fechar */
+  padding: 40px 20px 20px 20px; 
   width: 90%;
   max-width: 500px; /* Largura máxima do modal de cliente */
-  max-height: 90vh;
-  overflow-y: auto;
+  max-height: 90vh; /* Altura máxima para caber na tela */
+  overflow-y: auto; /* Rolagem interna para o conteúdo do modal */
   display: flex;
   flex-direction: column;
   position: relative;
@@ -461,7 +473,7 @@ body.no-scroll {
 }
 
 .modal-conteudo h3 {
-  margin-top: 0;
+  margin-top: 0; /* Garante que o título não empurre o conteúdo */
   font-size: 18px;
   text-align: center;
   margin-bottom: 15px;
@@ -494,101 +506,7 @@ body.no-scroll {
     overflow: hidden;
 }
 
-/* Painel centralizado com limite em desktop */
-.painel-cliente {
-  margin-top: 100px;
-  padding: 20px;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-@media (min-width: 768px) {
-  .painel-cliente {
-    max-width: 800px;
-    margin: 100px auto 0 auto;
-  }
-}
-
-/* Cartão saldo */
-.cartao-saldo {
-  background-color: #fff;
-  border-radius: 8px;
-  padding: 25px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-  text-align: center;
-  margin-bottom: 30px;
-}
-
-/* Tipo de conta */
-.tipo-conta-box {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  margin-bottom: 10px;
-}
-
-.tipo-conta-box img {
-  height: 20px;
-  width: 20px;
-}
-
-.select-tipo-conta {
-  padding: 6px 10px;
-  font-size: 14px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  background-color: #fff;
-  color: #082642;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.valor-saldo {
-  font-size: 26px;
-  font-weight: bold;
-  color: #000;
-}
-
-/* Ações com scroll horizontal */
-.acoes-wrapper {
-  overflow-x: auto;
-  padding-bottom: 10px;
-}
-
-.acoes-cliente {
-  display: flex;
-  gap: 15px;
-  padding: 0 5px;
-  width: max-content;
-}
-
-.acao {
-  background-color: #fff;
-  border-radius: 8px;
-  min-width: 90px;
-  max-width: 90px;
-  padding: 10px 5px;
-  text-align: center;
-  cursor: pointer;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
-  flex-shrink: 0;
-}
-
-.acao img {
-  width: 35px;
-  height: 35px;
-  margin-bottom: 8px;
-}
-
-.acao p {
-  margin: 0;
-  font-size: 13px;
-  font-weight: bold;
-  color: #000;
-}
-
-/* Desktop: ações fixas em 4 colunas */
+/* Desktop: ações fixas em 4 colunas (mantido do seu original) */
 @media (min-width: 768px) {
   .acoes-wrapper {
     overflow-x: visible;
@@ -604,43 +522,4 @@ body.no-scroll {
     flex: 1 1 22%;
     max-width: none;
   }
-}
-
-.modal-acao {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background-color: #ffffff;
-  border-top: 2px solid #0077d7;
-  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.15);
-  z-index: 999;
-  padding: 20px;
-  animation: slideUp 0.3s ease-out;
-}
-
-@keyframes slideUp {
-  from {
-    transform: translateY(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0%);
-    opacity: 1;
-  }
-}
-
-.modal-conteudo {
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-.fechar-modal {
-  background: none;
-  border: none;
-  font-size: 20px;
-  float: right;
-  cursor: pointer;
-  color: #ff5500;
-  font-weight: bold;
 }
