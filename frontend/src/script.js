@@ -19,6 +19,9 @@ let modalDescricao;
 let modalCamposDinamicos;
 let modalBtnConcluir;
 
+// DECLARAR O OBJETO 'acoes' NO ESCOPO GLOBAL
+let acoes = {}; // Inicialize como um objeto vazio para ser preenchido no DOMContentLoaded
+
 document.addEventListener('DOMContentLoaded', async () => {
   // 2. ATRIBUIÇÃO DOS ELEMENTOS DO DOM AQUI, DENTRO DO DOMContentLoaded.
   //    Isso garante que os elementos HTML já existam na página quando o script tenta encontrá-los.
@@ -68,12 +71,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // --- Código existente com alterações para usar o backend ---
 
-  // Definição do objeto 'acoes' com funções de callback
-  const acoes = {
+  // Definição do objeto 'acoes' com funções de callback - AGORA DENTRO DO ESCOPO GLOBAL
+  // MAS INICIALIZADO AQUI NO DOMContentLoaded
+  acoes = { // Atribuição ao 'acoes' global
     'Extrato': {
         descricao: 'Veja o histórico das suas movimentações bancárias.',
-        camposHtml: '',
-        funcaoConcluir: null
+        camposHtml: '<div id="extrato-lista"></div>', // Adicionado um div específico para o extrato
+        funcaoConcluir: null // Extrato não tem função de concluir
     },
     'Depositar': {
         descricao: 'Gere boletos ou utilize Pix para adicionar saldo.',
@@ -161,7 +165,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // Listener para o selectConta - este era um dos pontos de erro
+  // Listener para o selectConta
   if (selectConta) {
     selectConta.addEventListener('change', atualizarSaldo);
   }
@@ -172,13 +176,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         botao.addEventListener('click', () => {
             const titulo = botao.getAttribute('data-titulo');
             abrirModal(titulo); // Chama a função global abrirModal
-
-            // Se for Cartões ou Pagamentos, executa a função logo após abrir o modal
-            if (titulo === 'Cartões') {
-                gerenciarCartoes();
-            } else if (titulo === 'Pagamentos') {
-                realizarPagamentos();
-            }
         });
     }
   });
@@ -210,14 +207,19 @@ function abrirModal(titulo) {
     document.body.classList.add('no-scroll'); // Impede rolagem do body
 
     modalTitulo.innerText = titulo;
+    // O objeto 'acoes' agora é acessível globalmente
     const acaoInfo = acoes[titulo] || { descricao: 'Informações sobre esta ação não disponíveis.', camposHtml: '', funcaoConcluir: null };
+    
+    // Define a descrição geral da ação
     modalDescricao.innerHTML = `<p>${acaoInfo.descricao}</p>`;
+    // Insere os campos dinâmicos específicos da ação
     modalCamposDinamicos.innerHTML = acaoInfo.camposHtml;
 
     // Conecta a função de conclusão ao botão "Concluir" do modal
     if (acaoInfo.funcaoConcluir) {
         modalBtnConcluir.style.display = 'block'; // Mostra o botão
-        modalBtnConcluir.onclick = () => acaoInfo.funclaoConcluir(selectConta ? selectConta.value : null); // Passa o ID da conta selecionada
+        // CORRIGIDO: usa acaoInfo.funcaoConcluir com 'c' maiúsculo
+        modalBtnConcluir.onclick = () => acaoInfo.funcaoConcluir(selectConta ? selectConta.value : null); // Passa o ID da conta selecionada
     } else {
         modalBtnConcluir.style.display = 'none'; // Esconde o botão se não houver função de conclusão
         modalBtnConcluir.onclick = null; // Garante que nenhum handler antigo permaneça
@@ -227,14 +229,21 @@ function abrirModal(titulo) {
     if (titulo === 'Extrato') {
         const selectedAccountId = selectConta ? selectConta.value : null; // Verifica selectConta
         if (selectedAccountId) {
-            carregarExtrato(selectedAccountId);
+            carregarExtrato(selectedAccountId); // Carrega o extrato no div #extrato-lista
         } else {
-            modalDescricao.innerHTML = '<p style="color: red;">Selecione uma conta para ver o extrato.</p>';
+            // Se não houver conta selecionada, exibe mensagem no div do extrato
+            const extratoListaDiv = document.getElementById('extrato-lista');
+            if (extratoListaDiv) {
+                extratoListaDiv.innerHTML = '<p style="color: red;">Selecione uma conta para ver o extrato.</p>';
+            }
         }
+        modalBtnConcluir.style.display = 'none'; // Extrato não tem botão de concluir
     }
     // Lógica para Cartões e Pagamentos - apenas mostra a descrição e fecha o modal
+    // As funções 'gerenciarCartoes' e 'realizarPagamentos' agora não precisam ser chamadas aqui.
+    // Elas já foram chamadas no event listener do botão no DOMContentLoaded.
     if (titulo === 'Cartões' || titulo === 'Pagamentos') {
-        modalBtnConcluir.style.display = 'none'; // Não há botão de concluir para estas ações
+        modalBtnConcluir.style.display = 'none'; // Apenas para ter certeza de que o botão não aparece.
     }
   } else {
     console.error("Erro: Um ou mais elementos do modal não foram encontrados no DOM.");
@@ -255,10 +264,10 @@ async function carregarContasDoCliente() {
                 contas.forEach(conta => {
                     const option = document.createElement('option');
                     option.value = conta.id_conta;
-                    option.textContent = `Conta ${conta.tipo_conta}`;
+                    option.textContent = `Conta ${conta.tipo_conta} - ${conta.numero_conta}`; // Adicionado numero_conta para melhor identificação
                     selectConta.appendChild(option);
                 });
-                atualizarSaldo();
+                await atualizarSaldo(); // Usa await para garantir que o saldo seja atualizado antes de continuar
             } else {
                 const option = document.createElement('option');
                 option.value = '';
@@ -301,6 +310,16 @@ async function atualizarSaldo() {
 
 // Função para carregar o extrato
 async function carregarExtrato(accountId) {
+    const extratoListaDiv = document.getElementById('extrato-lista'); // Pega o div específico para o extrato
+    if (!extratoListaDiv) {
+        console.error('Elemento #extrato-lista não encontrado. Certifique-se de que está no HTML do modal.');
+        // Se o div não for encontrado, podemos tentar usar modalCamposDinamicos como fallback
+        modalCamposDinamicos.innerHTML = '<p style="color: red;">Erro: Elemento para extrato não encontrado.</p>';
+        return;
+    }
+
+    extratoListaDiv.innerHTML = '<p>Carregando extrato...</p>'; // Mensagem de carregamento
+
     try {
         const response = await fetch(`${API_URL}/conta/${accountId}/extrato?limite=50&periodo=90d`);
         const transacoes = await response.json();
@@ -317,15 +336,15 @@ async function carregarExtrato(accountId) {
                 const contaDestino = t.numero_conta_destino;
 
                 let detalhesAdicionais = [];
-                if (t.tipo_transacao === 'SAQUE' && contaOrigem) detalhesAdicionais.push(`Conta: ${contaOrigem}`);
-                if (t.tipo_transacao === 'DEPOSITO' && contaOrigem) detalhesAdicionais.push(`Conta: ${contaOrigem}`);
+                // Ajuste para exibir a conta correta na transferência (origem ou destino)
                 if (t.tipo_transacao === 'TRANSFERENCIA') {
-                    if (t.id_conta_origem == accountId) {
+                    if (t.id_conta_origem == accountId) { // Se a conta selecionada for a origem da transferência
                         detalhesAdicionais.push(`Para: ${contaDestino}`);
-                    } else if (t.id_conta_destino == accountId) {
+                    } else if (t.id_conta_destino == accountId) { // Se a conta selecionada for o destino da transferência
                         detalhesAdicionais.push(`De: ${contaOrigem}`);
                     }
                 }
+                // Para SAQUE e DEPOSITO, a conta já é a selecionada (accountId), não é necessário repetir.
                 if (descricao) detalhesAdicionais.push(descricao);
 
                 extratoHtml += `<li>${dataFormatada} - ${tipoTransacao}: R$ ${valorFormatado}`;
@@ -338,10 +357,10 @@ async function carregarExtrato(accountId) {
         } else {
             extratoHtml += '<p>Nenhuma transação recente.</p>';
         }
-        if (modalDescricao) modalDescricao.innerHTML = extratoHtml;
+        if (extratoListaDiv) extratoListaDiv.innerHTML = extratoHtml; // Insere no div do extrato
     } catch (error) {
         console.error('Erro ao carregar extrato:', error);
-        if (modalDescricao) modalDescricao.innerHTML = '<p style="color: red;">Erro ao carregar extrato: ' + (error.message || 'Verifique sua conexão.') + '</p>';
+        if (extratoListaDiv) extratoListaDiv.innerHTML = '<p style="color: red;">Erro ao carregar extrato: ' + (error.message || 'Verifique sua conexão.') + '</p>';
     }
 }
 
@@ -370,7 +389,7 @@ async function realizarDeposito(accountId) {
         if (response.ok) {
             alert('Depósito realizado com sucesso! ' + (data.message || ''));
             fecharModal();
-            await atualizarSaldo();
+            await atualizarSaldo(); // Atualiza o saldo após o depósito
         } else {
             alert('Erro ao realizar depósito: ' + (data.message || 'Desconhecido'));
         }
@@ -403,7 +422,7 @@ async function realizarSaque(accountId) {
         if (response.ok) {
             alert('Saque realizado com sucesso! ' + (data.message || ''));
             fecharModal();
-            await atualizarSaldo();
+            await atualizarSaldo(); // Atualiza o saldo após o saque
         } else {
             alert('Erro ao realizar saque: ' + (data.message || 'Desconhecido'));
         }
@@ -430,7 +449,15 @@ async function realizarTransferencia(accountId) {
         alert('Por favor, selecione uma conta de origem.');
         return;
     }
-    if (accountId == contaDestinoNumero) {
+    // Verificação para evitar transferência para a própria conta de origem
+    const selectedAccountOption = selectConta.options[selectConta.selectedIndex];
+    const selectedAccountNumberText = selectedAccountOption ? selectedAccountOption.textContent : '';
+    // Extrai apenas o número da conta da string "Conta Tipo - Número"
+    const selectedAccountNumberMatch = selectedAccountNumberText.match(/(\d{10,})/); // Regex para pegar pelo menos 10 dígitos
+    const selectedAccountNumber = selectedAccountNumberMatch ? selectedAccountNumberMatch[1] : null;
+
+
+    if (selectedAccountNumber && selectedAccountNumber === contaDestinoNumero) {
         alert('Não é possível transferir para a mesma conta de origem.');
         return;
     }
@@ -451,7 +478,7 @@ async function realizarTransferencia(accountId) {
         if (response.ok) {
             alert('Transferência realizada com sucesso! ' + (data.message || ''));
             fecharModal();
-            await atualizarSaldo();
+            await atualizarSaldo(); // Atualiza o saldo após a transferência
         } else {
             alert('Erro ao realizar transferência: ' + (data.message || 'Desconhecido'));
         }
@@ -462,21 +489,17 @@ async function realizarTransferencia(accountId) {
 }
 
 // --- Funções para Cartões e Pagamentos (placeholder) ---
+// Estas funções apenas exibem a descrição no alert e fecham o modal.
+// Elas são chamadas diretamente quando os botões são clicados na seção .acoes-cliente
+// Isso significa que o modal abre, mostra a descrição e depois o alert aparece.
+// Se você quer que o modal mostre a descrição e FECHE APENAS quando o usuário clica no 'x'
+// então remova o `alert` e o `fecharModal()` destas duas funções.
 function gerenciarCartoes() {
-    alert(acoes['Cartões'].descricao);
-    fecharModal();
+    alert(acoes['Cartões'].descricao); // Remova esta linha se não quiser o alert
+    fecharModal(); // Remova esta linha se quiser que o modal permaneça aberto
 }
 
 function realizarPagamentos() {
-    alert(acoes['Pagamentos'].descricao);
-    fecharModal();
+    alert(acoes['Pagamentos'].descricao); // Remova esta linha se não quiser o alert
+    fecharModal(); // Remova esta linha se quiser que o modal permaneça aberto
 }
-
-// Event Listeners
-// Estes listeners já são adicionados dentro do DOMContentLoaded no bloco principal.
-// Não é necessário declará-los novamente aqui.
-// selectConta.addEventListener('change', atualizarSaldo); // Removido: já está no DOMContentLoaded
-
-// Mapeia os botões de ação para a função abrirModal
-// Estes listeners já são adicionados dentro do DOMContentLoaded
-// (Já estão lá no DOMContentLoaded do código que eu forneci anteriormente)

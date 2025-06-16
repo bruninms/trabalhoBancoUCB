@@ -334,7 +334,7 @@ body.no-scroll {
   max-width: 400px; /* Largura máxima para o cartão */
   text-align: center;
   box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-  margin-top: 65px; /* AJUSTADO: Menor espaço para o header fixo, mais justo */
+  margin-top: 0px; /* AJUSTADO: Menor espaço para o header fixo, mais justo */
   margin-left: auto; /* Centraliza o cartão */
   margin-right: auto; /* Centraliza o cartão */
   box-sizing: border-box; /* Inclui padding na largura total */
@@ -346,6 +346,9 @@ body.no-scroll {
   align-items: center;
   justify-content: center;
   margin-bottom: 15px;
+  /* Opcional: Se o select ainda estiver "apertado", você pode adicionar um max-width aqui
+     e permitir que o conteúdo dele se ajuste. */
+  /* max-width: 90%; /* Exemplo */
 }
 
 .tipo-conta-box img {
@@ -359,8 +362,21 @@ body.no-scroll {
   border: 1px solid rgba(0, 0, 0, 0.5);
   padding: 8px 15px;
   border-radius: 5px;
-  font-size: 16px;
+  font-size: 17px;
   cursor: pointer;
+  /* >>>>> NOVAS PROPRIEDADES IMPORTANTES AQUI <<<<< */
+  width: 100%; /* Ocupa a largura total disponível pelo pai */
+  max-width: 250px; /* Ajuste esta largura máxima conforme o necessário (ex: 280px, 300px) */
+  /* As propriedades abaixo ajudam com o estouro de texto, mas a largura é a principal */
+  white-space: nowrap; /* Tenta manter o texto em uma linha */
+ 
+  box-sizing: border-box; /* Garante que padding e borda não aumentem a largura total */
+
+  /* Media query para telas menores, se ainda estiver apertado no mobile */
+  @media (max-width: 480px) {
+    font-size: 14px; /* Diminui a fonte em telas pequenas para caber mais */
+    max-width: 180px; /* Ajuste para telas muito pequenas */
+  }
 }
 
 .valor-saldo {
